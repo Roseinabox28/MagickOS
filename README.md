@@ -1,5 +1,9 @@
 # Magick-OS
 
+## Background
+
+Based on [this](https://www.youtube.com/watch?v=FkrpUaGThTQ&list=PLZQftyCk7_SeZRitx5MjBKzTtvk0pHMtp&index=1) tutorial by CodePulse
+
 ## Setup
 
 Build image for docker env:
