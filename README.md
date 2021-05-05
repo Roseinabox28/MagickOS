@@ -2,7 +2,7 @@
 
 ## Background
 
-Based on [this](https://www.youtube.com/watch?v=FkrpUaGThTQ&list=PLZQftyCk7_SeZRitx5MjBKzTtvk0pHMtp&index=1) tutorial by CodePulse
+Based on [this](https://www.youtube.com/watch?v=FkrpUaGThTQ&list=PLZQftyCk7_SeZRitx5MjBKzTtvk0pHMtp&index=1) tutorial by CodePulse and [this](https://github.com/pritamzope/OS/tree/master/Kernel/Keyboard) project by pritamzope.
 
 ## Setup
 
