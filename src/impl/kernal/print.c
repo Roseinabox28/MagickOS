@@ -5,12 +5,10 @@
 
 const static size_t NUM_COLS = 80;
 const static size_t NUM_ROWS = 25;
-
-
-struct Char 
+struct Char
 {
-    uint8_t character;
-    uint8_t color;
+  uint8_t character;
+  uint8_t color;
 };
 
 bool capslock = false;
@@ -20,101 +18,101 @@ bool ctrl = false;
 bool numlock = true;
 bool scrolllock = false;
 
-struct Char* buffer = (struct Char*) 0xb8000;
+struct Char* buffer = (struct Char *)0xb8000;
 size_t col = 0;
 size_t row = 0;
 uint8_t color = PRINT_COLOR_WHITE | PRINT_COLOR_BLACK << 4;
-
+char *char_mem;
 void clear_row(size_t row)
 {
-    struct Char empty = (struct Char) {
-        character: ' ',
-        color: color,
-    };
+  struct Char empty = (struct Char){
+    character : ' ',
+    color : color,
+  };
 
-    for (size_t col = 0; col < NUM_COLS; col++)
-    {
-        buffer[col + NUM_COLS * row] = empty;
-    }
-    
+  for (size_t col = 0; col < NUM_COLS; col++)
+  {
+    buffer[col + NUM_COLS * row] = empty;
+  }
+}
+void clear_col(size_t col)
+{
+  struct Char empty = (struct Char){
+    character : ' ',
+    color : color,
+  };
+    buffer[col + NUM_COLS * row] = empty;
 }
 
 void print_clear()
 {
-    for (size_t i = 0; i < NUM_ROWS; i++)
-    {
-       clear_row(i);
-    }
-    
+  for (size_t i = 0; i < NUM_ROWS; i++)
+  {
+    clear_row(i);
+  }
 }
 
 void print_newline()
 {
-    col = 0;
-    
-    if (row < NUM_ROWS)
-    {
-        row++;
-        return;
-    }
+  col = 0;
 
-    for (size_t row = 0; row < NUM_ROWS; row++)
-    {
-        for (size_t col = 0; col < NUM_COLS; col++)
-        {
-            struct Char character = buffer[col + NUM_COLS * row];
-            buffer[col + NUM_COLS * (row - 1)] = character;
-        }
-        
-    }
+  if (row < NUM_ROWS)
+  {
+    row++;
+    return;
+  }
 
-    clear_row(NUM_COLS - 1);
-    
+  for (size_t row = 0; row < NUM_ROWS; row++)
+  {
+    for (size_t col = 0; col < NUM_COLS; col++)
+    {
+      struct Char character = buffer[col + NUM_COLS * row];
+      buffer[col + NUM_COLS * (row - 1)] = character;
+    }
+  }
+
+  clear_row(NUM_COLS - 1);
 }
 
 void print_char(char character)
 {
-    if (character == '\n')
-    {
-        print_newline();
-        return;
-    }
+  if (character == '\n')
+  {
+    print_newline();
+    return;
+  }
 
-    if (col > NUM_COLS)
-    {
-        print_newline();
-    }
+  if (col > NUM_COLS)
+  {
+    print_newline();
+  }
 
-    buffer[col + NUM_COLS * row] = (struct Char)
-    {
-        character: (uint8_t) character,
-        color: color,
-    };
+  buffer[col + NUM_COLS * row] = (struct Char){
+    character : (uint8_t)character,
+    color : color,
+  };
 
-    col++;
-    
+  col++;
 }
 
-void print_str(char* str)
+void print_str(char *str)
 {
-    for (size_t i = 0; 1; i++)
+  for (size_t i = 0; 1; i++)
+  {
+    *(char_mem +1)= str;
+    char character = (uint8_t)str[i];
+
+    if (character == '\0')
     {
-        char character = (uint8_t) str[i];
-
-        if (character == '\0')
-        {
-            return;
-        }
-
-        print_char(character);
-
+      return;
     }
-    
+    print_char(character);
+  }
 }
 
 void print_int(int num)
 {
-  char str_num[digit_count(num)+1];
+  char str_num[digit_count(num) + 1];
   itoa(num, str_num);
   print_str(str_num);
 }
@@ -122,20 +120,25 @@ void print_int(int num)
 uint8 inb(uint16 port)
 {
   uint8 ret;
-  asm volatile("inb %1, %0" : "=a"(ret) : "d"(port));
+  asm volatile("inb %1, %0"
+               : "=a"(ret)
+               : "d"(port));
   return ret;
 }
 
 void outb(uint16 port, uint8 data)
 {
-  asm volatile("outb %0, %1" : "=a"(data) : "d"(port));
+  asm volatile("outb %0, %1"
+               : "=a"(data)
+               : "d"(port));
 }
 
 char get_input_keycode()
 {
   char ch = 0;
-  while((ch = inb(KEYBOARD_PORT)) != 0){
-    if(ch > 0)
+  while ((ch = inb(KEYBOARD_PORT)) != 0)
+  {
+    if (ch > 0)
       return ch;
   }
   return ch;
@@ -148,27 +151,31 @@ here timer can also be used, but lets do this in looping counter
 */
 void wait_for_io(uint32 timer_count)
 {
-  while(1){
+  while (1)
+  {
     asm volatile("nop");
     timer_count--;
-    if(timer_count <= 0)
+    if (timer_count <= 0)
       break;
-    }
+  }
 }
-
 void sleep(uint32 timer_count)
 {
   wait_for_io(timer_count);
 }
-
 void test_input()
 {
   char ch = 0;
   char keycode = 0;
-  do{
+  do
+  {
     keycode = get_input_keycode();
-    if(keycode == KEY_ENTER){
+    if (keycode == KEY_ENTER)
+    {
       print_newline();
+    }else if (keycode == KEY_BACKSPACE){
+      col--;
+      clear_col(col);
     }
     else if (keycode == KEY_LEFT_ALT_PRESS)
     {
@@ -204,9 +211,10 @@ void test_input()
     {
       //print_str("CAPS LOCK");
       capslock = !capslock;
-      print_str((char) capslock);
+      print_str((char)capslock);
     }
-    else{
+    else
+    {
       if (capslock || shift)
       {
         //we're capitalized
@@ -216,11 +224,11 @@ void test_input()
       {
         ch = get_ascii_char_lower(keycode);
       }
-
+      
       print_char(ch);
     }
     sleep(0x02FFFFFF);
-  }while(ch > 0);
+  } while (ch > 0);
 }
 /*
 char return_input()
@@ -247,6 +255,5 @@ char return_input()
 
 void print_set_color(uint8_t foreground, uint8_t background)
 {
-    color = foreground + (background << 4);
-
+  color = foreground + (background << 4);
 }
