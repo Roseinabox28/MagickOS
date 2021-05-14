@@ -23,6 +23,8 @@ size_t col = 0;
 size_t row = 0;
 uint8_t color = PRINT_COLOR_WHITE | PRINT_COLOR_BLACK << 4;
 char *char_mem;
+size_t input_pos = 0;
+size_t block_del_pos = 0;
 void clear_row(size_t row)
 {
   struct Char empty = (struct Char){
@@ -35,13 +37,20 @@ void clear_row(size_t row)
     buffer[col + NUM_COLS * row] = empty;
   }
 }
-void clear_col(size_t col)
+void clear_col(size_t column)
 {
+  column--;
+  if(input_pos<=block_del_pos){
+
+  }else{
+  col--;
   struct Char empty = (struct Char){
     character : ' ',
     color : color,
   };
-    buffer[col + NUM_COLS * row] = empty;
+    buffer[column + NUM_COLS * row] = empty;
+    input_pos--;
+    }
 }
 
 void print_clear()
@@ -91,7 +100,7 @@ void print_char(char character)
     character : (uint8_t)character,
     color : color,
   };
-
+  input_pos = col + NUM_COLS * row;
   col++;
 }
 
@@ -174,7 +183,6 @@ void test_input()
     {
       print_newline();
     }else if (keycode == KEY_BACKSPACE){
-      col--;
       clear_col(col);
     }
     else if (keycode == KEY_LEFT_ALT_PRESS)
